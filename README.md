@@ -20,4 +20,8 @@ Endpoint - https://sscweb.gsfc.nasa.gov/WS/sscr/2/locations
 
 API Key - BpWznLX4H1bH2IQEFWVeTdqpm9UD6xM6MWoIeDTl (optional?)
 
- 
+## More info
+
+- https://sscweb.gsfc.nasa.gov/WebServices/REST/py/sscws/index.html
+- https://sscweb.gsfc.nasa.gov/WebServices/REST/SSC.xsd
+- https://sscweb.gsfc.nasa.gov/WebServices/REST/jQueryExample3.html
