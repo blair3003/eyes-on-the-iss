@@ -14,14 +14,50 @@ The user can then use these listings to determine a suitable time to try and cat
 
 ## Requirements
 
-NASA API - [Satellite Situation Center](https://sscweb.gsfc.nasa.gov/WebServices/REST/)
+- [Satellite Situation Center](https://sscweb.gsfc.nasa.gov/WebServices/REST/) (NASA API)
+- NASA API Key - BpWznLX4H1bH2IQEFWVeTdqpm9UD6xM6MWoIeDTl (optional?)
+- [Geolocation API](https://developer.mozilla.org/en-US/docs/Web/API/Geolocation/getCurrentPosition)
+- [Geocoding API](https://openweathermap.org/api/geocoding-api)
 
-Endpoint - https://sscweb.gsfc.nasa.gov/WS/sscr/2/locations
-
-API Key - BpWznLX4H1bH2IQEFWVeTdqpm9UD6xM6MWoIeDTl (optional?)
-
-## More info
+## Resources
 
 - https://sscweb.gsfc.nasa.gov/WebServices/REST/py/sscws/index.html
 - https://sscweb.gsfc.nasa.gov/WebServices/REST/SSC.xsd
 - https://sscweb.gsfc.nasa.gov/WebServices/REST/jQueryExample3.html
+- https://sscweb.gsfc.nasa.gov/
+- https://sscweb.gsfc.nasa.gov/cgi-bin/Locator.cgi
+- https://sscweb.gsfc.nasa.gov/scansat.shtml
+- https://www.space.com/how-to-track-the-international-space-station
+- https://qr.ae/prUETV
+
+## State
+
+### ISS position
+
+The ISS position can be determined using NASA's [Satellite Situation Center](https://sscweb.gsfc.nasa.gov/WebServices/REST/) API.
+
+```
+POST https://sscweb.gsfc.nasa.gov/WS/sscr/2/locations
+```
+
+Data for the predicted position of the ISS is available only up to ~16 days in to the future. The previous ~7 days positions are also predicted but all previous days before are definitive. Postional data beyond 16 days into the future will need to be determined using historical data.
+
+### User location
+
+User location will be determined either automcatically using the device location data or entered manually by the user.
+
+The location can be detmernined automatically using the [Geolocation API](https://developer.mozilla.org/en-US/docs/Web/API/Geolocation/getCurrentPosition).
+
+```js
+navigator.geolocation.getCurrentPosition(success, error, options)
+```
+
+The location can be entered manually using the [Geocoding API](https://openweathermap.org/api/geocoding-api) from OpenWeather. The user can enter a city name and the API will return its coordinates.
+
+```
+http://api.openweathermap.org/geo/1.0/direct?q={city name},{state code},{country code}&limit={limit}&appid={API key}
+```
+
+## Determining sightings
+
+A sighting will be registered as a pass of the ISS over the user's longitudinal location (within a boundary yet to be decided), and within reasonable distance to their latitudinal location. A user close to the equator should have no problem sighting the ISS whether it is in the northern or southern hemisphere however a user in the northern hemisphere will not be able to see the ISS if it is in the southern hemisphere and vice versa. The quality of the sighting will be determined based on the difference in latitudinal distance between the ISS and the user and the light level of the user's location at that time.
