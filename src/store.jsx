@@ -81,7 +81,7 @@ export const useApplicationState = () => {
 					setLocation({
 						name: "Null Island",
 						lat: 0,
-						lon: 179
+						lon: 90
 					})
 					console.error(error)
 				}
@@ -96,8 +96,8 @@ export const useApplicationState = () => {
 		const arr = positions.filter(position => 
 			position.lat < location.lat + 45 &&
 			position.lat > location.lat - 45 &&
-			(position.lon + 180) % 360 < (location.lon + 180) % 360 + 10 &&
-			(position.lon + 180) % 360 > (location.lon + 180) % 360 - 10
+			(position.lon + 360) % 360 < (location.lon + 360) % 360 + 10 &&
+			(position.lon + 360) % 360 > (location.lon + 360) % 360 - 10
 		)
 
 		// const arr2 = arr.map(position => {
