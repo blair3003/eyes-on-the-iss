@@ -2,48 +2,59 @@ import { useState, useEffect, useRef } from 'react'
 
 export const useApplicationState = () => {
 
-	const [data, setData] = useState('')
-	const [location, setLocation] = useState(null)
-	const [sightings, setSightings] = useState([])
+	const [positions, setPositions] = useState()
+	const [location, setLocation] = useState()
+	const [sightings, setSightings] = useState()
 
 	const ready = useRef(true)
 
-	const getData = async () => {
-		const localData = localStorage.getItem('data')
-		if (localData) {
+	const initPositions = async () => {
+		const localPositions = localStorage.getItem('positions')
+		if (localPositions) {
 			console.log('Getting data from local storage')
-			setData(localData)
+			setPositions(JSON.parse(localPositions))
 		} else {
 			try {
 				console.log('Fetching data from NASA')
+				const start = Date.now()
+				console.log(start)
+				const end = start + 30*24*60*60*1000 // 30 days
+				console.log(end)
 				const stream = await fetch('https://sscweb.gsfc.nasa.gov/WS/sscr/2/locations', {
 					method: "POST",
 					headers: {
 						'Content-Type': 'application/xml'
 					},
-					body: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><DataRequest xmlns="http://sscweb.gsfc.nasa.gov/schema"><TimeInterval><Start>2023-02-18T00:00:00.000Z</Start><End>2024-02-17T23:59:59.000Z</End></TimeInterval><Satellites><Id>iss</Id><ResolutionFactor>15</ResolutionFactor></Satellites><OutputOptions><AllLocationFilters>true</AllLocationFilters><CoordinateOptions><CoordinateSystem>Geo</CoordinateSystem><Component>Lat</Component></CoordinateOptions><CoordinateOptions><CoordinateSystem>Geo</CoordinateSystem>
+					body: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><DataRequest xmlns="http://sscweb.gsfc.nasa.gov/schema"><TimeInterval><Start>${new Date(start).toISOString()}</Start><End>${new Date(end).toISOString()}</End></TimeInterval><Satellites><Id>iss</Id><ResolutionFactor>1</ResolutionFactor></Satellites><OutputOptions><AllLocationFilters>true</AllLocationFilters><CoordinateOptions><CoordinateSystem>Geo</CoordinateSystem><Component>Lat</Component></CoordinateOptions><CoordinateOptions><CoordinateSystem>Geo</CoordinateSystem>
 					<Component>Lon</Component></CoordinateOptions><CoordinateOptions><CoordinateSystem>Geo</CoordinateSystem><Component>Local_Time</Component></CoordinateOptions><MinMaxPoints>2</MinMaxPoints></OutputOptions></DataRequest>`
 				})
 				const xml = await stream.text()
 				const parser = new DOMParser()
 				const doc = parser.parseFromString(xml, "application/xml")
-				const data = doc.querySelector("Data")
-				const serializer = new XMLSerializer()
-				const xmlStr = serializer.serializeToString(data)
-				localStorage.setItem('data', xmlStr)
-				setData(xmlStr)	
-				/*	
-					Make an array of objects
-	
-					[
-						{
-							time: "2023-02-18T00:00:00.000Z"
-							lt: 17.25777777777778
-							lon: 258.8679
-							lat: -30.410204
-						}
-					]	
-				*/
+				const times = doc.querySelectorAll("Time")
+				const lats = doc.querySelectorAll("Latitude")
+				const lons = doc.querySelectorAll("Longitude")
+				const lts = doc.querySelectorAll("LocalTime")
+
+				if (times.length !== lats.length
+				 || times.length !== lons.length
+				 || times.length !== lts.length) {
+					throw new Error('Data length mismatch')
+				}
+
+				const positionArr = []
+				for (let i = 0; i < times.length; i++) {
+					let positionObj = {
+						time: times[i].textContent,
+						lat: lats[i].textContent,
+						lon: lons[i].textContent,
+						lt: lts[i].textContent
+					}
+					positionArr.push(positionObj)
+				}
+
+				localStorage.setItem('positions', JSON.stringify(positionArr))
+				setPositions(positionArr)
 	
 			} catch (err) {
 				console.error(err)
@@ -51,7 +62,7 @@ export const useApplicationState = () => {
 		}
 	}
 
-	const getLocation = () => {
+	const initLocation = () => {
 		const localLocation = localStorage.getItem('location')
 		if (localLocation) {
 			console.log('Getting location from local storage')
@@ -61,6 +72,7 @@ export const useApplicationState = () => {
 			navigator.geolocation.getCurrentPosition(
 				success => {
 					const locObj = {
+						name: "Home",
 						lat: success.coords.latitude,
 						lon: success.coords.longitude
 					}
@@ -69,6 +81,7 @@ export const useApplicationState = () => {
 				},
 				error => {
 					setLocation({
+						name: "Null Island",
 						lat: 0,
 						lon: 0
 					})
@@ -81,24 +94,24 @@ export const useApplicationState = () => {
 	useEffect(() => {
 		if (ready.current) {
 			console.log('Ready')
-			getData()
-			getLocation()
+			initPositions()
+			initLocation()
 			return () => ready.current = false
 		}
 	}, [])
 
 	useEffect(() => {
-		if (location && data) {
+		if (location && positions) {
 			console.log(`Location updated and data exists`)
-			console.log(data)
+			console.log(positions)
 		}
 
 
 		// TODO: Determine sightings based on data
-		// setSightings(JSON.parse(localData))
+		// setSightings(JSON.parse(localPositions))
 
 
-	}, [location, data])
+	}, [location, positions])
 
 	return {
 		location,
