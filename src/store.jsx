@@ -10,16 +10,14 @@ export const useApplicationState = () => {
 
 	const initPositions = async () => {
 		const localPositions = localStorage.getItem('positions')
-		if (localPositions) {
+		if (localPositions && JSON.parse(localPositions).ttl > Date.now()) {
 			console.log('Getting data from local storage')
-			setPositions(JSON.parse(localPositions))
+			setPositions(JSON.parse(localPositions).positions)
 		} else {
 			try {
 				console.log('Fetching data from NASA')
 				const start = Date.now()
-				console.log(start)
 				const end = start + 30*24*60*60*1000 // 30 days
-				console.log(end)
 				const stream = await fetch('https://sscweb.gsfc.nasa.gov/WS/sscr/2/locations', {
 					method: "POST",
 					headers: {
@@ -53,7 +51,7 @@ export const useApplicationState = () => {
 					positionArr.push(positionObj)
 				}
 
-				localStorage.setItem('positions', JSON.stringify(positionArr))
+				localStorage.setItem('positions', JSON.stringify({ ttl: start + 24*60*60*1000, positions: positionArr }))
 				setPositions(positionArr)
 	
 			} catch (err) {
