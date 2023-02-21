@@ -44,9 +44,9 @@ export const useApplicationState = () => {
 				for (let i = 0; i < times.length; i++) {
 					let positionObj = {
 						time: times[i].textContent,
-						lat: lats[i].textContent,
-						lon: lons[i].textContent,
-						lt: lts[i].textContent
+						lat: parseFloat(lats[i].textContent),
+						lon: parseFloat(lons[i].textContent) > 180 ? parseFloat(lons[i].textContent) - 360 : parseFloat(lons[i].textContent),
+						lt: parseFloat(lts[i].textContent)
 					}
 					positionArr.push(positionObj)
 				}
@@ -81,12 +81,41 @@ export const useApplicationState = () => {
 					setLocation({
 						name: "Null Island",
 						lat: 0,
-						lon: 0
+						lon: 179
 					})
 					console.error(error)
 				}
 			)
 		}
+	}
+
+	const updateSightings = () => {
+		console.log('Updating sightings')
+		console.log(location)
+
+		const arr = positions.filter(position => 
+			position.lat < location.lat + 45 &&
+			position.lat > location.lat - 45 &&
+			(position.lon + 180) % 360 < (location.lon + 180) % 360 + 10 &&
+			(position.lon + 180) % 360 > (location.lon + 180) % 360 - 10
+		)
+
+		// const arr2 = arr.map(position => {
+		// 	return {
+		// 		...position,
+		// 		pos: (position.lon + 180) % 360,
+		// 		eq1: (location.lon + 180) % 360 + 45,
+		// 		eq2: (location.lon + 180) % 360 - 45
+		// 	}
+		// })
+
+
+		// (position.lon + 180) % 360 < (location.lon + 180) % 360 + 45
+
+		// 0 - 360
+		// -180 - 180
+
+		console.log(arr)
 	}
 
 	useEffect(() => {
@@ -100,15 +129,8 @@ export const useApplicationState = () => {
 
 	useEffect(() => {
 		if (location && positions) {
-			console.log(`Location updated and data exists`)
-			console.log(positions)
+			updateSightings()
 		}
-
-
-		// TODO: Determine sightings based on data
-		// setSightings(JSON.parse(localPositions))
-
-
 	}, [location, positions])
 
 	return {
