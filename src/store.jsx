@@ -17,7 +17,7 @@ export const useApplicationState = () => {
 			try {
 				console.log('Fetching data from NASA')
 				const start = Date.now()
-				const end = start + 30*24*60*60*1000 // 30 days
+				const end = start + 30*24*60*60*1000 // 30 days (NASA returns at most ~12 days of data)
 				const stream = await fetch('https://sscweb.gsfc.nasa.gov/WS/sscr/2/locations', {
 					method: "POST",
 					headers: {
