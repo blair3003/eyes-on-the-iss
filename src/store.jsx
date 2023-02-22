@@ -91,31 +91,41 @@ export const useApplicationState = () => {
 
 	const updateSightings = () => {
 		console.log('Updating sightings')
-		console.log(location)
 
-		const arr = positions.filter(position => 
-			position.lat < location.lat + 45 &&
-			position.lat > location.lat - 45 &&
+		const visiblePositions = positions.filter(position => 
+			position.lat < location.lat + 30 &&
+			position.lat > location.lat - 30 &&
 			(position.lon + 360) % 360 < (location.lon + 360) % 360 + 10 &&
 			(position.lon + 360) % 360 > (location.lon + 360) % 360 - 10
 		)
+		visiblePositions.sort((a,b) => Date.parse(a.time) - Date.parse(b.time))
 
-		// const arr2 = arr.map(position => {
-		// 	return {
-		// 		...position,
-		// 		pos: (position.lon + 180) % 360,
-		// 		eq1: (location.lon + 180) % 360 + 45,
-		// 		eq2: (location.lon + 180) % 360 - 45
-		// 	}
-		// })
+		const groupedPositions = []
+		visiblePositions.reduce((accumulator, currentPosition) => {
+			if(!accumulator.length || Date.parse(currentPosition.time) - Date.parse(accumulator[accumulator.length - 1].time) < (2*60*1000)) {
+				accumulator.push(currentPosition)
+				return accumulator
+			}
+			groupedPositions.push(accumulator)
+			return []
+		}, [])
+
+		const suitableSightings = []
+		groupedPositions.forEach(group => {
+			if (group.length > 2) {
+				suitableSightings.push(group)
+			}
+		})
+
+		console.log(suitableSightings)
 
 
-		// (position.lon + 180) % 360 < (location.lon + 180) % 360 + 45
 
-		// 0 - 360
-		// -180 - 180
 
-		console.log(arr)
+
+
+
+
 	}
 
 	useEffect(() => {
