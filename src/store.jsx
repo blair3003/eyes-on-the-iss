@@ -99,6 +99,7 @@ export const useApplicationState = () => {
 
 	const updateSightings = () => {
 		console.log('Updating sightings')
+		console.log(location)
 
 		const visiblePositions = positions.filter(position => 
 			position.lat < location.lat + 30 &&
@@ -136,6 +137,25 @@ export const useApplicationState = () => {
 		setSightings(suitableSightings)
 	}
 
+	const updateLocation = async text => {		
+		const clean = text.trim().replaceAll(/ {1,}/g, ",")
+		const url = encodeURI(`https://api.openweathermap.org/geo/1.0/direct?q=${clean}&limit=1&appid=bbb2f467000e0e77f835621659f14509`)		
+		try {
+			console.log(`Fetching location`)
+			const stream = await fetch(url)
+			const json = await stream.json()
+			if (json) {
+				setLocation({
+					name: json[0].name,
+					lat: json[0].lat,
+					lon: json[0].lon
+				})
+			}
+		} catch (err) {
+			console.error(err)
+		}
+	}
+
 	useEffect(() => {
 		if (ready.current) {
 			console.log('Ready')
@@ -153,6 +173,7 @@ export const useApplicationState = () => {
 
 	return {
 		location,
-		sightings
+		sightings,
+		updateLocation
 	}
 }
