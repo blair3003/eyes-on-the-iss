@@ -80,8 +80,8 @@ export const useApplicationState = () => {
 				error => {
 					setLocation({
 						name: "Null Island",
-						lat: 0,
-						lon: 90
+						lat: 33.9526,
+						lon: -84.5499
 					})
 					console.error(error)
 				}
@@ -89,19 +89,12 @@ export const useApplicationState = () => {
 		}
 	}
 
-	const getTimeFromDecimal = decimal => {
-
-		const hours = Math.floor(decimal)
-		const minutes = Math.floor((decimal - hours) * 60)
-		return `${hours < 10 ? '0' : ''}${hours}:${minutes < 10 ? '0' : ''}${minutes}`
-	}
-
-	const getQuality = sighting => {
-		return 'Good'
-	}
-
-	const getDirection = sighting => {
-		return 'SW to E'
+	const getSightingDetails = positions => {
+		const start = new Date(positions[0].time)
+		const duration = positions.length
+		const quality = 'Good'
+		const direction = 'SW to E'
+		return { start, duration, quality, direction }
 	}
 
 	const updateSightings = () => {
@@ -126,20 +119,21 @@ export const useApplicationState = () => {
 		}, [])
 
 		const suitableSightings = []
-		groupedPositions.forEach(group => {
-			if (group.length > 2 && (group[0].lt >= 18 || group[0].lt < 6)) {
+		groupedPositions.forEach(positions => {
+			if (positions.length > 2 && (positions[0].lt >= 18 || positions[0].lt < 6)) {
+				const { start, duration, quality, direction } = getSightingDetails(positions)
 				suitableSightings.push({
-					start: getTimeFromDecimal(group[0].lt),
-					quality: getQuality(group),
-					direction: getDirection(group),
-					sightings: group
+					start,
+					duration,
+					quality,
+					direction,
+					positions
 				})
 			}
 		})
 
-
-		setSightings(suitableSightings)
 		console.log(suitableSightings)
+		setSightings(suitableSightings)
 	}
 
 	useEffect(() => {
