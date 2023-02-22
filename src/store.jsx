@@ -112,7 +112,7 @@ export const useApplicationState = () => {
 
 		const suitableSightings = []
 		groupedPositions.forEach(group => {
-			if (group.length > 2) {
+			if (group.length > 2 && (group[0].lt >= 18 || group[0].lt < 6)) {
 				suitableSightings.push(group)
 			}
 		})
