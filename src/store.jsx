@@ -92,8 +92,8 @@ export const useApplicationState = () => {
 	const getSightingDetails = positions => {
 		const start = new Date(positions[0].time)
 		const duration = positions.length
-		const quality = 'Good'
-		const direction = 'SW to E'
+		const quality = Math.floor((positions.length / Math.abs(location.lat - (positions.reduce((accumulator, currentPosition) => accumulator + currentPosition.lat, 0) / positions.length )) * 100))
+		const direction = `${(location.lat - positions[0].lat < 0 ? 'N' : 'S')}${(location.lon - positions[0].lon < 0 ? 'E' : 'W')} to ${(location.lat - positions[positions.length-1].lat < 0 ? 'N' : 'S')}${(location.lon - positions[positions.length-1].lon < 0 ? 'E' : 'W')}`
 		return { start, duration, quality, direction }
 	}
 
