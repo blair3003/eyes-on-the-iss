@@ -89,6 +89,21 @@ export const useApplicationState = () => {
 		}
 	}
 
+	const getTimeFromDecimal = decimal => {
+
+		const hours = Math.floor(decimal)
+		const minutes = Math.floor((decimal - hours) * 60)
+		return `${hours < 10 ? '0' : ''}${hours}:${minutes < 10 ? '0' : ''}${minutes}`
+	}
+
+	const getQuality = sighting => {
+		return 'Good'
+	}
+
+	const getDirection = sighting => {
+		return 'SW to E'
+	}
+
 	const updateSightings = () => {
 		console.log('Updating sightings')
 
@@ -113,19 +128,18 @@ export const useApplicationState = () => {
 		const suitableSightings = []
 		groupedPositions.forEach(group => {
 			if (group.length > 2 && (group[0].lt >= 18 || group[0].lt < 6)) {
-				suitableSightings.push(group)
+				suitableSightings.push({
+					start: getTimeFromDecimal(group[0].lt),
+					quality: getQuality(group),
+					direction: getDirection(group),
+					sightings: group
+				})
 			}
 		})
 
+
+		setSightings(suitableSightings)
 		console.log(suitableSightings)
-
-
-
-
-
-
-
-
 	}
 
 	useEffect(() => {
