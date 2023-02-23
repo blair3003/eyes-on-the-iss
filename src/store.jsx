@@ -17,7 +17,7 @@ export const useApplicationState = () => {
 			try {
 				console.log('Fetching data from NASA')
 				const start = Date.now()
-				const end = start + 30*24*60*60*1000 // 30 days (NASA returns at most ~12 days of data)
+				const end = start + 30*24*60*60*1000 // 30 days (NASA returns at most ~16 days of data)
 				const stream = await fetch('https://sscweb.gsfc.nasa.gov/WS/sscr/2/locations', {
 					method: "POST",
 					headers: {
@@ -60,32 +60,14 @@ export const useApplicationState = () => {
 		}
 	}
 
-	const initLocation = () => {
+	const initLocation = async () => {
 		const localLocation = localStorage.getItem('location')
 		if (localLocation) {
 			console.log('Getting location from local storage')
 			setLocation(JSON.parse(localLocation))
 		} else {
 			console.log("Getting location from user's device")
-			navigator.geolocation.getCurrentPosition(
-				success => {
-					const locObj = {
-						name: "Home",
-						lat: success.coords.latitude,
-						lon: success.coords.longitude
-					}
-					setLocation(locObj)
-					localStorage.setItem('location', JSON.stringify(locObj))
-				},
-				error => {
-					setLocation({
-						name: "Null Island",
-						lat: 33.9526,
-						lon: -84.5499
-					})
-					console.error(error)
-				}
-			)
+			getCurrentLocation(true)
 		}
 	}
 
@@ -100,7 +82,6 @@ export const useApplicationState = () => {
 	const updateSightings = () => {
 		console.log('Updating sightings')
 		console.log(location)
-
 		const visiblePositions = positions.filter(position => 
 			position.lat < location.lat + 30 &&
 			position.lat > location.lat - 30 &&
@@ -108,7 +89,6 @@ export const useApplicationState = () => {
 			(position.lon + 360) % 360 > (location.lon + 360) % 360 - 10
 		)
 		visiblePositions.sort((a,b) => Date.parse(a.time) - Date.parse(b.time))
-
 		const groupedPositions = []
 		visiblePositions.reduce((accumulator, currentPosition) => {
 			if(!accumulator.length || Date.parse(currentPosition.time) - Date.parse(accumulator[accumulator.length - 1].time) < (2*60*1000)) {
@@ -118,7 +98,6 @@ export const useApplicationState = () => {
 			groupedPositions.push(accumulator)
 			return []
 		}, [])
-
 		const suitableSightings = []
 		groupedPositions.forEach(positions => {
 			if (positions.length > 2 && (positions[0].lt >= 18 || positions[0].lt < 6)) {
@@ -132,28 +111,61 @@ export const useApplicationState = () => {
 				})
 			}
 		})
-
 		console.log(suitableSightings)
 		setSightings(suitableSightings)
 	}
 
-	const updateLocation = async text => {		
+	const getNewLocation = async event => {
+		event.preventDefault()
+		const text = event.target.elements.location.value
 		const clean = text.trim().replaceAll(/ {1,}/g, ",")
+		if (!clean.length) return
 		const url = encodeURI(`https://api.openweathermap.org/geo/1.0/direct?q=${clean}&limit=1&appid=bbb2f467000e0e77f835621659f14509`)		
 		try {
-			console.log(`Fetching location`)
+			console.log('Fetching location')
 			const stream = await fetch(url)
 			const json = await stream.json()
-			if (json) {
+			if (json[0]) {
+				console.log(json[0])
 				setLocation({
 					name: json[0].name,
 					lat: json[0].lat,
 					lon: json[0].lon
 				})
+			} else {
+				throw new Error('No location found')
 			}
 		} catch (err) {
 			console.error(err)
 		}
+	}
+
+	const saveLocation = () => {
+		if (location) {
+			console.log(`Saving location`)
+			localStorage.setItem('location', JSON.stringify(location))
+		}
+	}
+
+	const getCurrentLocation = () => {
+		navigator.geolocation.getCurrentPosition(
+			success => {
+				const locObj = {
+					name: "Home",
+					lat: success.coords.latitude,
+					lon: success.coords.longitude
+				}
+				setLocation(locObj)
+			},
+			error => {
+				setLocation({
+					name: "Null Island",
+					lat: 0,
+					lon: 0
+				})
+				console.error(error)
+			}
+		)
 	}
 
 	useEffect(() => {
@@ -174,6 +186,8 @@ export const useApplicationState = () => {
 	return {
 		location,
 		sightings,
-		updateLocation
+		getNewLocation,
+		saveLocation,
+		getCurrentLocation
 	}
 }
