@@ -44,9 +44,9 @@ export const useApplicationState = () => {
 				for (let i = 0; i < times.length; i++) {
 					let positionObj = {
 						time: times[i].textContent,
-						lat: parseFloat(lats[i].textContent),
-						lon: parseFloat(lons[i].textContent) > 180 ? parseFloat(lons[i].textContent) - 360 : parseFloat(lons[i].textContent),
-						lt: parseFloat(lts[i].textContent)
+						lat: Number(parseFloat(lats[i].textContent).toFixed(2)),
+						lon: parseFloat(lons[i].textContent) > 180 ? Number((parseFloat(lons[i].textContent) - 360).toFixed(2)) : Number(parseFloat(lons[i].textContent).toFixed(2)),
+						lt: Number(parseFloat(lts[i].textContent).toFixed(2))
 					}
 					positionArr.push(positionObj)
 				}
@@ -75,8 +75,7 @@ export const useApplicationState = () => {
 		const start = new Date(positions[0].time)
 		const duration = positions.length
 		const quality = Math.floor((positions.length / Math.abs(location.lat - (positions.reduce((accumulator, currentPosition) => accumulator + currentPosition.lat, 0) / positions.length )) * 100))
-		// const direction = `${(location.lat - positions[0].lat < 0 ? 'N' : 'S')}${(location.lon - positions[0].lon < 0 ? 'E' : 'W')}/${(location.lat - positions[positions.length-1].lat < 0 ? 'N' : 'S')}${(location.lon - positions[positions.length-1].lon < 0 ? 'E' : 'W')}`
-		const direction = 'tbd'
+		const direction = `${(location.lat < positions[0].lat ? 'N' : 'S')}W/${(location.lat < positions[positions.length - 1].lat ? 'N' : 'S')}E`
 		return { start, duration, quality, direction }
 	}
 
@@ -171,11 +170,16 @@ export const useApplicationState = () => {
 				setLocation({
 					name: "Null Island",
 					lat: 0,
-					lon: 180
+					lon: 0
 				})
 				console.error(error)
 			}
 		)
+	}
+
+	const getHomeLocation = () => {
+		const homeLocation = localStorage.getItem('location')
+		if (homeLocation) setLocation(JSON.parse(homeLocation))
 	}
 
 	useEffect(() => {
@@ -198,6 +202,7 @@ export const useApplicationState = () => {
 		sightings,
 		getNewLocation,
 		saveLocation,
-		getCurrentLocation
+		getCurrentLocation,
+		getHomeLocation
 	}
 }
