@@ -152,7 +152,11 @@ export const useApplicationState = () => {
 	const saveLocation = () => {
 		if (location) {
 			console.log(`Saving location`)
-			localStorage.setItem('location', JSON.stringify(location))
+			localStorage.setItem('location', JSON.stringify({
+				name: "Home",
+				lat: location.lat,
+				lon: location.lon
+			}))
 		}
 	}
 
@@ -160,7 +164,7 @@ export const useApplicationState = () => {
 		navigator.geolocation.getCurrentPosition(
 			success => {
 				const locObj = {
-					name: "Home",
+					name: "Current Location",
 					lat: success.coords.latitude,
 					lon: success.coords.longitude
 				}
