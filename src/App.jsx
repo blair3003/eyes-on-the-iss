@@ -1,6 +1,33 @@
 import { useApplicationState } from './store'
 
-const App = () => {
+const SightingsList = ({ sightings }) => {
+    const listItems = sightings?.map((sighting, index) => <SightingsListItem sighting={sighting} key={index} />)
+    return (
+        <div>
+            {listItems}
+        </div>
+    )
+}
+
+const SightingsListItem = ({ sighting }) => {
+
+    const start = new Date(sighting.start)
+    return (
+        <div>
+            <div>
+                {start.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+            </div>
+            <div>
+                {start.toLocaleTimeString('en-US', { hour: "2-digit", minute: "2-digit" })}
+            </div>
+            <div>
+                {sighting.direction}
+            </div>
+        </div>
+    )
+}
+
+function App() {
 
     const { location, sightings, getNewLocation, saveLocation, getCurrentLocation } = useApplicationState()
 
@@ -15,7 +42,10 @@ const App = () => {
                 <input id="location" type="text" placeholder="City, State, Country" />
                 <button>Go</button>
             </form>
-            <p>Sightings: {JSON.stringify(sightings)}</p>
+            {/* <p>Sightings: {JSON.stringify(sightings)}</p> */}
+
+
+            <SightingsList sightings={sightings}/>
 
         </div>
     )

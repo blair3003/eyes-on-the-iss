@@ -75,19 +75,29 @@ export const useApplicationState = () => {
 		const start = new Date(positions[0].time)
 		const duration = positions.length
 		const quality = Math.floor((positions.length / Math.abs(location.lat - (positions.reduce((accumulator, currentPosition) => accumulator + currentPosition.lat, 0) / positions.length )) * 100))
-		const direction = `${(location.lat - positions[0].lat < 0 ? 'N' : 'S')}${(location.lon - positions[0].lon < 0 ? 'E' : 'W')}/${(location.lat - positions[positions.length-1].lat < 0 ? 'N' : 'S')}${(location.lon - positions[positions.length-1].lon < 0 ? 'E' : 'W')}`
+		// const direction = `${(location.lat - positions[0].lat < 0 ? 'N' : 'S')}${(location.lon - positions[0].lon < 0 ? 'E' : 'W')}/${(location.lat - positions[positions.length-1].lat < 0 ? 'N' : 'S')}${(location.lon - positions[positions.length-1].lon < 0 ? 'E' : 'W')}`
+		const direction = 'tbd'
 		return { start, duration, quality, direction }
 	}
 
 	const updateSightings = () => {
 		console.log('Updating sightings')
-		console.log(location)
-		const visiblePositions = positions.filter(position => 
+		console.log(location)		
+		let visiblePositions = positions.filter(position => 
 			position.lat < location.lat + 30 &&
-			position.lat > location.lat - 30 &&
-			(position.lon + 360) % 360 < (location.lon + 360) % 360 + 10 &&
-			(position.lon + 360) % 360 > (location.lon + 360) % 360 - 10
-		)
+			position.lat > location.lat - 30
+		)			
+		const upperLon = (location.lon + 10 > 180) ? (location.lon + 10 - 360) : location.lon + 10
+		const lowerLon = (location.lon - 10 < -180) ? (location.lon - 10 + 360) : location.lon - 10
+		if (lowerLon < upperLon) {
+			visiblePositions = visiblePositions.filter(position =>
+				lowerLon < position.lon && position.lon < upperLon
+			)
+		} else {
+			visiblePositions = visiblePositions.filter(position =>
+				lowerLon < position.lon || position.lon < upperLon
+			)
+		}
 		visiblePositions.sort((a,b) => Date.parse(a.time) - Date.parse(b.time))
 		const groupedPositions = []
 		visiblePositions.reduce((accumulator, currentPosition) => {
@@ -161,7 +171,7 @@ export const useApplicationState = () => {
 				setLocation({
 					name: "Null Island",
 					lat: 0,
-					lon: 0
+					lon: 180
 				})
 				console.error(error)
 			}
