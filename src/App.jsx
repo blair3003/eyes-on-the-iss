@@ -17,8 +17,8 @@ const LocationDetails = ({ location, getCurrentLocation, getHomeLocation, saveLo
         <section className="p-4 flex">
             <h2 className="offscreen">Location Details</h2>
             <div className="grow px-4">
-                <p className="text-2xl text-white">{location.name}</p>
-                <p className="text-white">{location.lat}, {location?.lon}</p>
+                <p className="text-2xl text-white">{location?.name}</p>
+                <p className="text-white">{location?.lat}, {location?.lon}</p>
             </div>
             <div className="px-4 text-2xl flex justify-around items-center gap-6">
                 <button onClick={getCurrentLocation}>🎯</button>
