@@ -5,6 +5,7 @@ export const useApplicationState = () => {
 	const [positions, setPositions] = useState()
 	const [location, setLocation] = useState()
 	const [sightings, setSightings] = useState()
+	const [loading, setLoading] = useState(false)
 
 	const ready = useRef(true)
 
@@ -16,6 +17,7 @@ export const useApplicationState = () => {
 		} else {
 			try {
 				console.log('Fetching data from NASA')
+				setLoading(true)
 				const start = Date.now()
 				const end = start + 30*24*60*60*1000 // 30 days (NASA returns at most ~16 days of data)
 				const stream = await fetch('https://sscweb.gsfc.nasa.gov/WS/sscr/2/locations', {
@@ -56,6 +58,8 @@ export const useApplicationState = () => {
 	
 			} catch (err) {
 				console.error(err)
+			} finally {
+				setLoading(false)
 			}
 		}
 	}
@@ -128,10 +132,11 @@ export const useApplicationState = () => {
 		event.preventDefault()
 		const text = event.target.elements.location.value
 		const clean = text.trim().replaceAll(/ {1,}/g, ",")
-		if (!clean.length) return
-		const url = encodeURI(`https://api.openweathermap.org/geo/1.0/direct?q=${clean}&limit=1&appid=bbb2f467000e0e77f835621659f14509`)		
+		if (!clean.length) return		
 		try {
 			console.log('Fetching location')
+			setLoading(true)			
+			const url = encodeURI(`https://api.openweathermap.org/geo/1.0/direct?q=${clean}&limit=1&appid=bbb2f467000e0e77f835621659f14509`)
 			const stream = await fetch(url)
 			const json = await stream.json()
 			if (json[0]) {
@@ -146,6 +151,9 @@ export const useApplicationState = () => {
 			}
 		} catch (err) {
 			console.error(err)
+		} finally {
+			event.target.reset()
+			setLoading(false)
 		}
 	}
 
@@ -173,8 +181,8 @@ export const useApplicationState = () => {
 			error => {
 				setLocation({
 					name: "Null Island",
-					lat: 0,
-					lon: 0
+					lat: -33.8688,
+					lon: 151.2093
 				})
 				console.error(error)
 			}
@@ -204,6 +212,7 @@ export const useApplicationState = () => {
 	return {
 		location,
 		sightings,
+		loading,
 		getNewLocation,
 		saveLocation,
 		getCurrentLocation,

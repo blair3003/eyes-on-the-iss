@@ -1,18 +1,21 @@
 import { useApplicationState } from './store'
+import { BiTargetLock } from 'react-icons/bi'
+import { AiFillHome, AiFillSave } from 'react-icons/ai'
+import { MdSignalCellular1Bar, MdSignalCellular2Bar, MdSignalCellular3Bar, MdSignalCellular4Bar } from 'react-icons/md'
 
-const LocationSearch = ({ getNewLocation }) => {
+const LocationSearch = ({ loading, getNewLocation }) => {
     return (
         <section className="p-4 text-white">
             <form className="flex bg-slate-900 w-100 p-2 rounded" onSubmit={getNewLocation}>
                 <label className="offscreen" htmlFor="location">Enter a new location</label>
                 <input className="px-2 bg-transparent grow" id="location" type="text" placeholder="Search location..." />
-                <button className="px-2 font-bold">⌕</button>
+                <button className="px-2 font-bold" disabled={loading}>⌕</button>
             </form>
         </section>
     )
 }
 
-const LocationDetails = ({ location, getCurrentLocation, getHomeLocation, saveLocation }) => {
+const LocationDetails = ({ location, loading, getCurrentLocation, getHomeLocation, saveLocation }) => {
     return (
         <section className="p-4 flex">
             <h2 className="offscreen">Location Details</h2>
@@ -21,9 +24,9 @@ const LocationDetails = ({ location, getCurrentLocation, getHomeLocation, saveLo
                 <p className="text-white">{location?.lat}, {location?.lon}</p>
             </div>
             <div className="px-4 text-2xl flex justify-around items-center gap-6">
-                <button onClick={getCurrentLocation}>🎯</button>
-                <button onClick={getHomeLocation}>🏠</button>
-                <button onClick={saveLocation}>💾</button>                
+                <button onClick={getCurrentLocation} disabled={loading}><BiTargetLock className="text-white" /></button>
+                <button onClick={getHomeLocation} disabled={loading}><AiFillHome className="text-white" /></button>
+                <button onClick={saveLocation} disabled={loading}><AiFillSave className="text-white" /></button>                
             </div>
         </section>
     )
@@ -33,7 +36,7 @@ const SightingsList = ({ sightings }) => {
     const listItems = sightings?.map((sighting, index) => <SightingsListItem sighting={sighting} key={index} />)
     return (
         <section className="p-4">
-            {listItems}
+            {(listItems?.length) ? listItems : <p className="text-white p-4">No sightings to list.</p>}
         </section>
     )
 }
@@ -41,7 +44,7 @@ const SightingsList = ({ sightings }) => {
 const SightingsListItem = ({ sighting }) => {
     const start = new Date(sighting.start)
     return (
-        <div className="flex justify-between text-white bg-slate-900 px-4 py-2 rounded mb-2">
+        <div className="flex justify-between text-white bg-slate-900 px-4 py-2 rounded mb-2 bg-opacity-80">
             <div className="basis-full">
                 {start.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
             </div>
@@ -51,8 +54,13 @@ const SightingsListItem = ({ sighting }) => {
             <div className="basis-full text-center">
                 {sighting.direction}
             </div>
-            <div className="basis-full text-right">
-                {sighting.quality}
+            <div className="basis-full flex justify-end items-center">
+                {
+                    (sighting.quality > 1000) ? <MdSignalCellular4Bar className="text-blue-600 text-lg" /> :
+                    (sighting.quality > 100) ? <MdSignalCellular3Bar className="text-green-600 text-lg" /> :
+                    (sighting.quality > 20) ? <MdSignalCellular2Bar className="text-yellow-600 text-lg" /> :
+                    <MdSignalCellular1Bar className="text-red-600 text-lg" />
+                }
             </div>
         </div>
     )
@@ -60,14 +68,18 @@ const SightingsListItem = ({ sighting }) => {
 
 function App() {
 
-    const { location, sightings, getNewLocation, saveLocation, getCurrentLocation, getHomeLocation } = useApplicationState()
+    const { location, sightings, loading, getNewLocation, saveLocation, getCurrentLocation, getHomeLocation } = useApplicationState()
 
     return (
-        <div className="min-h-screen bg-black">
-            <h1 className="p-4 text-white text-4xl text-center font-mono" title="Eyes on the ISS">Eyes on the ISS</h1>
-            <LocationSearch getNewLocation={getNewLocation} />
+        <div className="h-screen bg-iss bg-cover overflow-y-scroll">
+            <h1 className="p-4 text-white text-4xl text-center font-mono" title="Eyes on the ISS">Eyes on the ISS 🛰</h1>
+            <LocationSearch
+                loading={loading}
+                getNewLocation={getNewLocation}
+            />
             <LocationDetails
                 location={location}
+                loading={loading}
                 getCurrentLocation={getCurrentLocation}
                 getHomeLocation={getHomeLocation}
                 saveLocation={saveLocation}
