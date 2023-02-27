@@ -8,7 +8,7 @@ const LocationSearch = ({ loading, getNewLocation }) => {
         <section className="p-4 text-white">
             <form className="flex bg-slate-900 w-100 p-2 rounded" onSubmit={getNewLocation}>
                 <label className="offscreen" htmlFor="location">Enter a new location</label>
-                <input className="px-2 bg-transparent grow" id="location" type="text" placeholder="Search location..." />
+                <input className="px-2 bg-transparent grow" id="location" type="text" placeholder="Search for City..." />
                 <button className="px-2 text-2xl font-bold" disabled={loading}>⌕</button>
             </form>
         </section>
