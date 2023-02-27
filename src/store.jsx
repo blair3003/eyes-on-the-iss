@@ -18,6 +18,7 @@ export const useApplicationState = () => {
 		} else {
 			try {
 				console.log('Fetching data from NASA')
+				setError(false)
 				setLoading(true)
 				const start = Date.now()
 				const end = start + 30*24*60*60*1000 // 30 days (NASA returns at most ~16 days of data)
@@ -137,6 +138,7 @@ export const useApplicationState = () => {
 		if (!clean.length) return		
 		try {
 			console.log('Fetching location')
+			setError(false)
 			setLoading(true)			
 			const url = encodeURI(`https://api.openweathermap.org/geo/1.0/direct?q=${clean}&limit=1&appid=bbb2f467000e0e77f835621659f14509`)
 			const stream = await fetch(url)
