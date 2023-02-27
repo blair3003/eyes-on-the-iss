@@ -115,8 +115,7 @@ export const useApplicationState = () => {
 		}, [])
 		const suitableSightings = []
 		groupedPositions.forEach(positions => {
-			// if (positions.length > 2 && (positions[0].lt >= 18 || positions[0].lt < 6)) {
-			if (positions.length > 2) {
+			if (positions.length > 2 && (positions[0].lt >= 18 || positions[0].lt < 6)) {
 				const { start, duration, quality, direction } = getSightingDetails(positions)
 				suitableSightings.push({
 					start,
@@ -185,8 +184,8 @@ export const useApplicationState = () => {
 			error => {
 				setLocation({
 					name: "Null Island",
-					lat: 44.6923,
-					lon: -62.6572
+					lat: 0,
+					lon: 0
 				})
 				console.error(error)
 			}
