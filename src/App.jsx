@@ -58,7 +58,7 @@ const SightingsListItem = ({ sighting }) => {
             <div className="basis-full text-center">
                 {sighting.direction}
             </div>
-            <div className="basis-full flex justify-end items-center">
+            <div className="flex justify-end items-center">
                 {
                     (sighting.quality > 1000) ? <MdSignalCellular4Bar className="text-blue-600 text-lg" /> :
                     (sighting.quality > 100) ? <MdSignalCellular3Bar className="text-green-600 text-lg" /> :
@@ -85,7 +85,7 @@ function App() {
 
     return (
         <div className="h-screen bg-iss bg-cover overflow-y-scroll">
-            <h1 className="p-4 text-white text-4xl text-center font-mono" title="Eyes on the ISS">Eyes on the ISS 🛰</h1>
+            <h1 className="p-4 text-white text-3xl text-center font-mono" title="Eyes on the ISS">Eyes on the ISS 🛰</h1>
             <LocationSearch
                 loading={loading}
                 getNewLocation={getNewLocation}
