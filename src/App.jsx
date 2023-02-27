@@ -32,11 +32,15 @@ const LocationDetails = ({ location, loading, getCurrentLocation, getHomeLocatio
     )
 }
 
-const SightingsList = ({ sightings }) => {
+const SightingsList = ({ sightings, loading, error }) => {
     const listItems = sightings?.map((sighting, index) => <SightingsListItem sighting={sighting} key={index} />)
     return (
         <section className="p-4">
-            {(listItems?.length) ? listItems : <p className="text-white p-4">No sightings to list.</p>}
+            {
+                (error) ? <p className="text-red-600 p-4">There has been an error, please reload the page.</p>
+              : (listItems?.length) ? listItems
+              : <p className="text-white p-4">No sightings to list.</p>
+            }
         </section>
     )
 }
@@ -68,7 +72,16 @@ const SightingsListItem = ({ sighting }) => {
 
 function App() {
 
-    const { location, sightings, loading, getNewLocation, saveLocation, getCurrentLocation, getHomeLocation } = useApplicationState()
+    const {
+        location,
+        sightings,
+        loading,
+        error,
+        getNewLocation,
+        saveLocation,
+        getCurrentLocation,
+        getHomeLocation
+    } = useApplicationState()
 
     return (
         <div className="h-screen bg-iss bg-cover overflow-y-scroll">
@@ -84,7 +97,11 @@ function App() {
                 getHomeLocation={getHomeLocation}
                 saveLocation={saveLocation}
             />
-            <SightingsList sightings={sightings}/>
+            <SightingsList
+                sightings={sightings}
+                loading={loading}
+                error={error}
+            />
         </div>
     )
 }

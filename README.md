@@ -60,4 +60,10 @@ http://api.openweathermap.org/geo/1.0/direct?q={city name},{state code},{country
 
 ## Determining sightings
 
-A sighting will be registered as a pass of the ISS over the user's longitudinal location (within a boundary yet to be decided), and within reasonable distance to their latitudinal location. A user close to the equator should have no problem sighting the ISS whether it is in the northern or southern hemisphere however a user in the northern hemisphere will not be able to see the ISS if it is in the southern hemisphere and vice versa. The quality of the sighting will be determined based on the difference in latitudinal distance between the ISS and the user and the light level of the user's location at that time.
+A sighting will be registered as a pass of the ISS over the user's longitudinal location (within +-10 degrees), and within reasonable distance to their latitudinal location (+-30 degrees). The quality of the sighting will be determined based on the difference in average latitudinal distance between the ISS and the user, and the the duration of the sighting. Only sightings that occur during night time (6pm-6am) will be shown.
+
+## Findings
+
+The sightings shown to the user are based on predictions from the SSC. These predictions appear to be accurate to about +-10 minutes.
+
+

@@ -6,6 +6,7 @@ export const useApplicationState = () => {
 	const [location, setLocation] = useState()
 	const [sightings, setSightings] = useState()
 	const [loading, setLoading] = useState(false)
+	const [error, setError] = useState(false)
 
 	const ready = useRef(true)
 
@@ -53,10 +54,11 @@ export const useApplicationState = () => {
 					positionArr.push(positionObj)
 				}
 
-				localStorage.setItem('positions', JSON.stringify({ ttl: start + 24*60*60*1000, positions: positionArr }))
+				localStorage.setItem('positions', JSON.stringify({ ttl: start + 1*60*60*1000, positions: positionArr }))
 				setPositions(positionArr)
 	
 			} catch (err) {
+				setError(true)
 				console.error(err)
 			} finally {
 				setLoading(false)
@@ -76,7 +78,7 @@ export const useApplicationState = () => {
 	}
 
 	const getSightingDetails = positions => {
-		const start = new Date(positions[0].time)
+		const start = positions[0].time
 		const duration = positions.length
 		const quality = Math.floor((positions.length / Math.abs(location.lat - (positions.reduce((accumulator, currentPosition) => accumulator + currentPosition.lat, 0) / positions.length )) * 100))
 		const direction = `${(location.lat < positions[0].lat ? 'N' : 'S')}W/${(location.lat < positions[positions.length - 1].lat ? 'N' : 'S')}E`
@@ -104,7 +106,7 @@ export const useApplicationState = () => {
 		visiblePositions.sort((a,b) => Date.parse(a.time) - Date.parse(b.time))
 		const groupedPositions = []
 		visiblePositions.reduce((accumulator, currentPosition) => {
-			if(!accumulator.length || Date.parse(currentPosition.time) - Date.parse(accumulator[accumulator.length - 1].time) < (2*60*1000)) {
+			if(!accumulator.length || (Date.parse(currentPosition.time) - Date.parse(accumulator[accumulator.length - 1].time)) < (2*60*1000)) {
 				accumulator.push(currentPosition)
 				return accumulator
 			}
@@ -113,7 +115,8 @@ export const useApplicationState = () => {
 		}, [])
 		const suitableSightings = []
 		groupedPositions.forEach(positions => {
-			if (positions.length > 2 && (positions[0].lt >= 18 || positions[0].lt < 6)) {
+			// if (positions.length > 2 && (positions[0].lt >= 18 || positions[0].lt < 6)) {
+			if (positions.length > 2) {
 				const { start, duration, quality, direction } = getSightingDetails(positions)
 				suitableSightings.push({
 					start,
@@ -131,7 +134,7 @@ export const useApplicationState = () => {
 	const getNewLocation = async event => {
 		event.preventDefault()
 		const text = event.target.elements.location.value
-		const clean = text.trim().replaceAll(/ {1,}/g, ",")
+		const clean = text.trim().replaceAll(/ {1,}/g, " ")
 		if (!clean.length) return		
 		try {
 			console.log('Fetching location')
@@ -150,6 +153,7 @@ export const useApplicationState = () => {
 				throw new Error('No location found')
 			}
 		} catch (err) {
+			setError(true)
 			console.error(err)
 		} finally {
 			event.target.reset()
@@ -181,8 +185,8 @@ export const useApplicationState = () => {
 			error => {
 				setLocation({
 					name: "Null Island",
-					lat: -33.8688,
-					lon: 151.2093
+					lat: 44.6923,
+					lon: -62.6572
 				})
 				console.error(error)
 			}
@@ -213,6 +217,7 @@ export const useApplicationState = () => {
 		location,
 		sightings,
 		loading,
+		error,
 		getNewLocation,
 		saveLocation,
 		getCurrentLocation,
